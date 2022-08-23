@@ -1,0 +1,73 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+}
+
+body {
+    background: grey;
+}
+
+
+/* form css */
+header{
+    height: calc(100vh- 110px);
+}
+#formContainer{
+    padding: 10px;
+}
+
+#formContainer h1{
+    text-align: center;
+}
+#formContainer .buttonContainer{
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#formContainer .buttonContainer > button{
+    margin: 5px;
+}
+
+/* form css */
+
+
+#configurationFileContainer{
+    /* background-color: red; */
+    height: 80%;
+    padding: 2px;
+    width: 100%;
+    overflow-y: auto;
+}
+
+#configurationFileContainer > .containerInsert > .card{
+    margin-bottom: 10px;
+}
+#configurationFileContainer > .containerInsert {
+    margin-bottom: 10px;
+}
+main{
+    height: calc(100vh - 200px);
+    padding: 0 2px;
+}
+
+
+
+footer{
+    height: 70px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #111;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+footer > button{
+    margin: 10px;
+}
