@@ -74,6 +74,7 @@ app.post("/save", function(req, res) {
 })
 global.arrayOfClients = []
 app.post("/start", function(req, res) {
+  arrayOfClients = []
   console.log("called save test")
   const dataToSave = req.body
   console.log(dataToSave)
@@ -105,7 +106,25 @@ app.post("/start", function(req, res) {
       element.publish("v1/devices/me/telemetry", JSON.stringify({"value": 111, "type": "device"}), options)
       
     })
-    // global.client = mqtt.connect("tcp://127.0.0.1:1883",{username: "h41bSJ2Tis5Kf7xYGfjn"})
+    
+  }
+  res.send({response: "success"});
+})
+
+app.post("/stop", function(req, res) {
+  console.log("called save test")
+  const dataToSave = req.body
+  console.log(dataToSave)
+  arrayOfClients.forEach((element,i)=> {
+    console.log("element:"+i)
+    element.end();
+  })  
+})
+
+app.listen(3000, () => console.log('Example app is listening on port 3000.'));
+
+
+// global.client = mqtt.connect("tcp://127.0.0.1:1883",{username: "h41bSJ2Tis5Kf7xYGfjn"})
     
     // client.on("connect",function(){	
     //   console.log("connected "+client.connected);
@@ -118,19 +137,3 @@ app.post("/start", function(req, res) {
     //   client.publish("v1/devices/me/telemetry", JSON.stringify({"value": 111, "type": "device"}), options)
     // },10000)
     
-  }
-})
-
-app.post("/stop", function(req, res) {
-  console.log("called save test")
-  const dataToSave = req.body
-  console.log(dataToSave)
-  arrayOfClients.forEach((element,i)=> {
-    element.end();
-  })
-  
-})
-
-app.listen(3000, () => console.log('Example app is listening on port 3000.'));
-
-

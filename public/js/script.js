@@ -153,6 +153,8 @@ function start(){
         $("#startButton").text("Stop")
         $("#startButton").removeClass("btn-success")
         $("#startButton").addClass("btn-danger")
+
+        $("#startButton").prop("disabled", true);
         //Chiamata per avviare la logica dei/del client mqtt
         length = configurationData.length
         if(length > 0){
@@ -164,9 +166,11 @@ function start(){
             data: JSON.stringify( {start:"ok"} ),
             success: function(result) {
                 console.log(result)
+                $("#startButton").prop("disabled", false);
             },
             error: function(result){
                 console.log(result)
+                $("#startButton").prop("disabled", false);
                 alert("Post Request Failed")
             }
             });
