@@ -154,11 +154,47 @@ function start(){
         $("#startButton").removeClass("btn-success")
         $("#startButton").addClass("btn-danger")
         //Chiamata per avviare la logica dei/del client mqtt
+        length = configurationData.length
+        if(length > 0){
+        $.ajax({
+            url: "/start",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify( {start:"ok"} ),
+            success: function(result) {
+                console.log(result)
+            },
+            error: function(result){
+                console.log(result)
+                alert("Post Request Failed")
+            }
+            });
+        }else{
+            alert("No Devices")
+        }
     }else{
         $("#startButton").text("Start")
         $("#startButton").removeClass("btn-danger")
         $("#startButton").addClass("btn-success")
         //Chiamata per arrestare la logica dei/del client mqtt
+        length = configurationData.length
+        if(length > 0){
+            $.ajax({
+                url: "/stop",
+                type: "POST",
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify( {stop:"ok"} ),
+                success: function(result) {
+                    console.log(result)
+                },
+                error: function(result){
+                    console.log(result)
+                    alert("Post Request Failed")
+                }
+                });
+        }
     }
     // implementare logica e relativa chiamata per attivare il parser dei file txt e i diversi client mqtt 
 }

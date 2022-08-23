@@ -8,8 +8,9 @@ const $ = require( "jquery" )( window );
 const fs = require( "fs" );
 var mqtt = require('mqtt');
 
-const app = express()
+const util = require('util')
 
+const app = express()
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}))
@@ -71,8 +72,64 @@ app.post("/save", function(req, res) {
       console.log(e)
   }
 })
+global.arrayOfClients = []
+app.post("/start", function(req, res) {
+  console.log("called save test")
+  const dataToSave = req.body
+  console.log(dataToSave)
+  if (fs.existsSync('config.json')) {
+    let configurationFileContent = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+    console.log(configurationFileContent)
+    
+    configurationFileContent.devices.forEach((element,i )=> {
+      let clientName = "client"+ element.id
+      let client =  mqtt.connect("tcp://127.0.0.1:1883",{username: element.token})
+      console.log("ClientName"+clientName)
+      // console.log("Client: " + client)
+      // console.log(util.inspect(client, {showHidden: false, depth: null}))
+      arrayOfClients.push(client)
+      // console.log("arrayOfClients"+util.inspect(arrayOfClients, {showHidden: false, depth: null}))
+    })
+    console.log("arrayofclient prima del maledetto for each :"+arrayOfClients)
+    arrayOfClients.forEach((element,i)=> {
+      console.log("element"+util.inspect(element, {showHidden: false, depth: null}))
+      console.log("count "+i)
+      // console.log("element arrayOfClients: "+element)
+      element.on("connect",function(){	
+          console.log("connected "+element.connected);
+        })
+      var options={
+        retain:true,
+        qos:1
+      };
+      element.publish("v1/devices/me/telemetry", JSON.stringify({"value": 111, "type": "device"}), options)
+      
+    })
+    // global.client = mqtt.connect("tcp://127.0.0.1:1883",{username: "h41bSJ2Tis5Kf7xYGfjn"})
+    
+    // client.on("connect",function(){	
+    //   console.log("connected "+client.connected);
+    // })
+    // client.on("error",function(error){ console.log("Can't connect"+error);});
+    // var options={
+    //   retain:true,
+    //   qos:1};
+    // setInterval(function() {
+    //   client.publish("v1/devices/me/telemetry", JSON.stringify({"value": 111, "type": "device"}), options)
+    // },10000)
+    
+  }
+})
 
-
+app.post("/stop", function(req, res) {
+  console.log("called save test")
+  const dataToSave = req.body
+  console.log(dataToSave)
+  arrayOfClients.forEach((element,i)=> {
+    element.end();
+  })
+  
+})
 
 app.listen(3000, () => console.log('Example app is listening on port 3000.'));
 
