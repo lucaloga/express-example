@@ -7,8 +7,9 @@ const { window } = new JSDOM( "" );
 const $ = require( "jquery" )( window );
 const fs = require( "fs" );
 var mqtt = require('mqtt');
+var schedule = require('node-schedule');
 
-const util = require('util')
+const util = require('util');
 
 const app = express()
 
@@ -77,7 +78,9 @@ app.post("/start", function(req, res) {
   arrayOfClients = []
   console.log("called save test")
   const dataToSave = req.body
-  console.log(dataToSave)
+  
+  // calling the function schedule
+
   if (fs.existsSync('config.json')) {
     let configurationFileContent = JSON.parse(fs.readFileSync('config.json', 'utf8'));
     console.log(configurationFileContent)
@@ -85,17 +88,14 @@ app.post("/start", function(req, res) {
     configurationFileContent.devices.forEach((element,i )=> {
       let clientName = "client"+ element.id
       let client =  mqtt.connect("tcp://127.0.0.1:1883",{username: element.token})
-      console.log("ClientName"+clientName)
-      // console.log("Client: " + client)
-      // console.log(util.inspect(client, {showHidden: false, depth: null}))
+      
+      
       arrayOfClients.push(client)
-      // console.log("arrayOfClients"+util.inspect(arrayOfClients, {showHidden: false, depth: null}))
+      
     })
-    console.log("arrayofclient prima del maledetto for each :"+arrayOfClients)
+    
     arrayOfClients.forEach((element,i)=> {
-      console.log("element"+util.inspect(element, {showHidden: false, depth: null}))
-      console.log("count "+i)
-      // console.log("element arrayOfClients: "+element)
+      
       element.on("connect",function(){	
           console.log("connected "+element.connected);
         })
@@ -119,6 +119,7 @@ app.post("/stop", function(req, res) {
     console.log("element:"+i)
     element.end();
   })  
+  res.send({response: "success"});
 })
 
 app.listen(3000, () => console.log('Example app is listening on port 3000.'));
