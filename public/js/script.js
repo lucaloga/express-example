@@ -1,5 +1,3 @@
-var a = $("#listaDio")
-console.log(a.data)
 var configurationData = []
 var device = {}
 
@@ -8,9 +6,8 @@ function getConfig(){
     fetch("config")
     .then((response) => response.json())
     .then((data) => {
-        console.log(data)
+        
         data.devices.forEach((element,i )=> {
-            console.log(element.name);
             
             $("#configurationFileContainer").append('<div class="containerInsert" data-key="'+ element.id +'">'+
             '<div class="card" style="width: 100%; key="'+element.id+'">'+
@@ -46,7 +43,7 @@ function addCard(){
     var deviceToken = $("#device-token").val();
     let unique = true
     // take input fileds values
-    console.log("Name : " + deviceName + " Token : " + deviceToken);
+    // console.log("Name : " + deviceName + " Token : " + deviceToken);
     configurationData.forEach(element =>{
         if(element.token.toLowerCase() == deviceToken.toLowerCase())
             unique = false
@@ -55,8 +52,8 @@ function addCard(){
         $("#configurationFileContainer").append('<div class="containerInsert" data-key="'+ (configurationData.length + 1 )+'">'+
         '<div class="card '+ (configurationData.length + 1 )+'" style="width: 100%;" >'+
             '<div class="card-body">'+
-              '<h5 class="card-title">' + deviceName + '</h5>'+
-              '<p class="card-text">' + deviceToken + '</p>'+
+                '<h5 class="card-title">' + deviceName + '</h5>'+
+                '<p class="card-text">' + deviceToken + '</p>'+
             '</div>'+
           '</div>'+
     
@@ -64,7 +61,7 @@ function addCard(){
             '<button type="button" class="btn btn-danger" onclick="'+removeCard()+'"><i class="fas fa-minus"></i></button>'+
         '</div>'+
     '</div>');
-        
+
         // attach on click event on button for remove card
         var newCardAdded = $("#configurationFileContainer").find(".btn-danger").last();
         newCardAdded.on("click", removeCard)
@@ -76,9 +73,9 @@ function addCard(){
             name: $("#device-name").val(),
             token: $("#device-token").val()
         }
-        console.log("oggetto device:"+device)
+        // console.log("oggetto device:"+device)
         configurationData.push(device)
-        console.log(configurationData)
+        // console.log(configurationData)
 
 
         //clear the input fileds
@@ -102,12 +99,21 @@ function removeCard(){
         let key = $(this).parent().parent().data("key")
         $(this).parent().parent().remove()
         configurationData = configurationData.filter(element => element.id !== key)
-        console.log(configurationData)
+        // console.log(configurationData)
     }
 }
 // /CARD REMOVER
 
 // SAVE DATI DISPOSITIVI
+
+$("button").on('click',function() {
+    $("#test").on('click');
+})
+
+$('#test').on('change',function() {
+    $('#test_form').on('submit');
+});
+
 function save(){
     console.log("save")
     $("#device-name").prop("disabled", true);

@@ -7,9 +7,12 @@ const { window } = new JSDOM( "" );
 const $ = require( "jquery" )( window );
 const fs = require( "fs" );
 var mqtt = require('mqtt');
-var schedule = require('node-schedule');
+// var schedule = require('node-schedule');
+const {spawn} = require('child_process');
+var http = require('http');
 
 const util = require('util');
+const { on } = require('events');
 
 const app = express()
 
@@ -74,6 +77,10 @@ app.post("/save", function(req, res) {
   }
 })
 global.arrayOfClients = []
+
+var uint8arrayToString = function(data){
+  return String.fromCharCode.apply(null, data);
+};
 app.post("/start", function(req, res) {
   arrayOfClients = []
   console.log("called save test")
@@ -84,28 +91,42 @@ app.post("/start", function(req, res) {
   if (fs.existsSync('config.json')) {
     let configurationFileContent = JSON.parse(fs.readFileSync('config.json', 'utf8'));
     console.log(configurationFileContent)
+  
+    const python = spawn('python', ['./python/script.py']);
+
+    python.stdout.on('data', function (data) {
+      console.log('Data on');
+      console.log(data);
+      console.log(uint8arrayToString(data));
+    });
+
+    python.on('close', (code,result) => {
+      // send data to browser
+      });
     
-    configurationFileContent.devices.forEach((element,i )=> {
-      let clientName = "client"+ element.id
-      let client =  mqtt.connect("tcp://127.0.0.1:1883",{username: element.token})
-      
-      
-      arrayOfClients.push(client)
-      
-    })
     
-    arrayOfClients.forEach((element,i)=> {
+
+    // configurationFileContent.devices.forEach((element,i )=> {
+    //   let clientName = "client"+ element.id
+    //   let client =  mqtt.connect("tcp://127.0.0.1:1883",{username: element.token})
       
-      element.on("connect",function(){	
-          console.log("connected "+element.connected);
-        })
-      var options={
-        retain:true,
-        qos:1
-      };
-      element.publish("v1/devices/me/telemetry", JSON.stringify({"value": 111, "type": "device"}), options)
       
-    })
+    //   arrayOfClients.push(client)
+      
+    // })
+    
+    // arrayOfClients.forEach((element,i)=> {
+      
+    //   element.on("connect",function(){	
+    //       console.log("connected "+element.connected);
+    //     })
+    //   var options={
+    //     retain:true,
+    //     qos:1
+    //   };
+    //   element.publish("v1/devices/me/telemetry", JSON.stringify({"value": 111, "type": "device"}), options)
+      
+    // })
     
   }
   res.send({response: "success"});
@@ -113,12 +134,6 @@ app.post("/start", function(req, res) {
 
 app.post("/stop", function(req, res) {
   console.log("called save test")
-  const dataToSave = req.body
-  console.log(dataToSave)
-  arrayOfClients.forEach((element,i)=> {
-    console.log("element:"+i)
-    element.end();
-  })  
   res.send({response: "success"});
 })
 
