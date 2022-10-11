@@ -10,6 +10,9 @@ import random
 import glob, os
 from datetime import datetime
 import schedule
+import subprocess
+
+rc = subprocess.call("/home/appforgood/script.sh")
 # open json file with device information
 # f = open("./config.json")
 
@@ -92,8 +95,9 @@ autha = {
 }
 
 
-def sendData(arrayData,fileNameToSend):
+def sendData(arrayData,fileNameToSend, file, coefficentToCalculate):
     c = 0
+    flag = False
     for data in arrayData:
     # print(len(data["data"]))
         if len(data["data"]) == 3:
@@ -101,43 +105,64 @@ def sendData(arrayData,fileNameToSend):
             send = {
                 "length": float(data["data"][0]),
                 "temperature_change": float(data["data"][1]),
-                "strain": float(data["data"][2]),
+                "strain": float(data["data"][2]) - coefficentToCalculate,
                 "file": str(fileNameToSend)
             }
-            publish.single(topic="v1/devices/me/telemetry", payload=json.dumps(send), hostname="localhost", client_id="mqtt-client-1", keepalive=60, will=None, tls=None,protocol=mqtt.MQTTv311, transport="tcp", port=1883, auth= autha)
-            time.sleep(5)
-            c +=1
-            print("cose in arrayData "+ str(float(data["data"][0])))
-            print("cose in arrayData1 "+ str(float(data["data"][1])))
-            print("cose in arrayData2 "+ str(float(data["data"][2])))
-            print("count "+ str(c))
+            try:
+                publish.single(topic="v1/devices/me/telemetry", payload=json.dumps(send), hostname="172.20.1.56", client_id="mqtt-client-1", keepalive=60, will=None, tls=None,protocol=mqtt.MQTTv311, transport="tcp", port=1883, auth= autha)
+                time.sleep(5)
+                flag = True
+                c +=1
+                print("cose in arrayData "+ str(float(data["data"][0])))
+                print("cose in arrayData1 "+ str(float(data["data"][1]))- coefficentToCalculate)
+                print("cose in arrayData2 "+ str(float(data["data"][2])))
+                print("count "+ str(c))
+            except: 
+                print("broker not responding")
         else: 
             pass
+    return flag
+#    if flag == True:
+#        fileNameToModify = "/mnt/win_share/"+fileNameToSend+"_examinated.txt"
+#        os.rename(file, fileNameToModify)
 
 
 def grabFile():
     arrayData = []
-
-    list_of_files = glob.glob('C:/Users/lucal/Desktop/test_DIGISTONE_piattaforma/*.txt') 
+    tCoefficent = 0
+    sCoefficent = 0
+    t = 0
+    list_of_files = glob.glob('/mnt/win_share/*.txt') 
     for file in list_of_files:
         if "lower" in file.lower() and "examinated" not in file.lower():
             print("file"+str(file))
             #dopo aver fatto tutte le cose che devo fare con il file gli cambio il nome
-            path = "C:/Users/lucal/Desktop/test_DIGISTONE_piattaforma/"+file
             fM = open(file,"r")
-            fileNameToSend = file.split("\\")[1].split(".")[0]
+            fileNameToSend = file.split("/")[3].split(".")[0]
             for i, line in enumerate(fM):
-                if i >= 28 and i <= 109:
+                if i == 14:
+                   tCoefficent = line.split()
+                elif i == 20:
+                    sCoefficent = line.split()
+                elif i >= 28 and i <= 109:
                 # if i == 28:
                     arrayData.append({
                         "line": i,
                         "data":line.split()
                     })
+                    if i >= 75 and i <= 78:
+                        data = line.split()
+                        t += float(data[1])
+
             fM.close()
-            sendData(arrayData, fileNameToSend)
+            costant = float(sCoefficent[0]) / float(tCoefficent[0])
+            t = t / 4
+            coefficentToCalculate = costant * t
+            flag = sendData(arrayData, fileNameToSend, file, coefficentToCalculate)
             arrayData = []
-            fileNameToModify = "C:/Users/lucal/Desktop/test_DIGISTONE_piattaforma/"+file.split("\\")[1].split(".")[0]+"_examinated.txt"
-            os.rename(file, fileNameToModify)
+            if flag == True:
+                fileNameToModify = "/mnt/win_share/"+fileNameToSend+"_examinated.txt"
+                os.rename(file, fileNameToModify)
     # latest_file = max(list_of_files, key = os.path.getctime)
     # # for file in glob.glob("*.txt"):
     # #     print(file)
