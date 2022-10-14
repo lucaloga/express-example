@@ -91,7 +91,7 @@ rc = subprocess.call("/home/appforgood/script.sh")
 # c.keepalive = 60
 
 autha = {
-    'username':"YyqqXz3Pzib6omC7FOLj"
+    'username':"TDYDQF0HKy4KUbExP60n"
 }
 
 
@@ -109,9 +109,9 @@ def sendData(arrayData,fileNameToSend, file, coefficentToCalculate):
                 "file": str(fileNameToSend)
             }
             try:
-                publish.single(topic="v1/devices/me/telemetry", payload=json.dumps(send), hostname="172.20.1.56", client_id="mqtt-client-1", keepalive=60, will=None, tls=None,protocol=mqtt.MQTTv311, transport="tcp", port=1883, auth= autha)
+                publish.single(topic="v1/devices/me/telemetry", payload=json.dumps(send), hostname="172.20.1.241", client_id="mqtt-client-1", keepalive=60, will=None, tls=None,protocol=mqtt.MQTTv311, transport="tcp", port=1883, auth= autha)
                 time.sleep(5)
-                flag = True
+                lag = True
                 c +=1
                 print("cose in arrayData "+ str(float(data["data"][0])))
                 print("cose in arrayData1 "+ str(float(data["data"][1]))- coefficentToCalculate)
